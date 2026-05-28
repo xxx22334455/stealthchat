@@ -1,0 +1,38 @@
+name: stealthchat
+description: Decentralized anti-DPI messenger with traffic obfuscation
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Network - WSS with platform TLS
+  web_socket_channel: ^2.4.0
+  crypto: ^3.0.3
+  
+  # Storage - encrypted SQLite
+  sqflite: ^2.3.0
+  path_provider: ^2.1.1
+  path: ^1.8.3
+  
+  # Crypto FFI bindings (libsodium)
+  ffi: ^2.1.0
+  
+  # Utils
+  uuid: ^4.2.1
+  collection: ^1.18.0
+  meta: ^1.10.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  test: ^1.24.0
+
+flutter:
+  uses-material-design: true

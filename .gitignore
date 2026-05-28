@@ -1,0 +1,24 @@
+# Binaries
+*.dart_tool
+*.pub
+/build
+/flutter
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+coverage/
+
+# Captured traffic for testing
+*.pcap
