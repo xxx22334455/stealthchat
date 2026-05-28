@@ -23,6 +23,9 @@ dependencies:
   # Crypto FFI bindings (libsodium)
   ffi: ^2.1.0
   
+  # QR code
+  qr_flutter: ^4.1.0
+  
   # Utils
   uuid: ^4.2.1
   collection: ^1.18.0
