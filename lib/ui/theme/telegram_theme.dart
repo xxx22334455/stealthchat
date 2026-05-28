@@ -52,7 +52,7 @@ class TelegramTheme {
           fontWeight: FontWeight.w600,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: TelegramColors.lightSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -118,7 +118,7 @@ class TelegramTheme {
           fontWeight: FontWeight.w600,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: TelegramColors.darkSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(

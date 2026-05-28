@@ -348,9 +348,9 @@ class TelegramMessageBubble extends StatelessWidget {
       case MessageStatus.sent:
         return Icon(Icons.check, size: 16, color: checkColor);
       case MessageStatus.delivered:
-        return Icon(Icons.check_double, size: 16, color: checkColor);
+        return Icon(Icons.done_all, size: 16, color: checkColor);
       case MessageStatus.read:
-        return Icon(Icons.check_double, size: 16, color: TelegramColors.lightPrimary);
+        return Icon(Icons.done_all, size: 16, color: TelegramColors.lightPrimary);
     }
   }
 

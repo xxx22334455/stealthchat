@@ -52,11 +52,11 @@ class CryptoSession {
     final keys = _kdf(sharedSecret, 3);
     
     _sendChainKey = keys[0];
-    _sendChainNonce = Uint8List(8)..fillRange(0, 8, (i) => 0);
+    _sendChainNonce = Uint8List(8);
     _sendMessageKey = keys[1];
     
     _recvChainKey = keys[2];
-    _recvChainNonce = Uint8List(8)..fillRange(0, 8, (i) => 0);
+    _recvChainNonce = Uint8List(8);
     _recvMessageKey = keys[1]; // Same initial key for simplicity
   }
 
@@ -193,7 +193,7 @@ class CryptoSession {
     final keys = _kdf(sharedSecret, 3);
     
     _sendChainKey = keys[0];
-    _sendChainNonce = Uint8List(8)..fillRange(0, 8, (i) => 0);
+    _sendChainNonce = Uint8List(8);
     _sendMessageKey = keys[1];
   }
 

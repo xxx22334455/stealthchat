@@ -147,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: isDark ? Colors.white : null),
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          prefixIcon: const Icon(Icons.key_outline),
+                          prefixIcon: const Icon(Icons.lock),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {

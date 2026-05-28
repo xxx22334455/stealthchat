@@ -36,13 +36,14 @@ class RelayPool {
   /// Connect to specific relay
   Future<bool> _connectToRelay(String address) async {
     try {
-      final client = WssClient(
+      WssClient? newClient;
+      newClient = WssClient(
         url: address,
         onMessage: (data) {
           _onMessage?.call(address, data);
         },
         onConnected: () {
-          _relays[address] = client;
+          _relays[address] = newClient!;
           _onRelayConnected?.call(address);
         },
         onError: (error) {
@@ -54,7 +55,7 @@ class RelayPool {
         },
       );
 
-      final success = await client.connect();
+      final success = await newClient.connect();
       return success;
     } catch (e) {
       return false;
