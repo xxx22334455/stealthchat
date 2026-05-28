@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../app_node.dart';
 import '../../core/identity_manager.dart';
 import 'chat_screen.dart';
 
@@ -11,8 +12,29 @@ class ChatListScreen extends StatefulWidget {
 }
 
 class _ChatListScreenState extends State<ChatListScreen> {
-  // TODO: Load from database
+  StealthChatNode? _node;
   final List<ChatItem> _chats = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeNode();
+  }
+
+  Future<void> _initializeNode() async {
+    // TODO: Initialize with storage
+    // final storage = EncryptedStorage(encryptionKey: ...);
+    // _node = StealthChatNode(
+    //   identityManager: widget.identityManager,
+    //   storage: storage,
+    //   onMessageReceived: _handleMessageReceived,
+    // );
+    // await _node!.start();
+  }
+
+  void _handleMessageReceived(String peerId, String message) {
+    // TODO: Update chat list
+  }
 
   void _addContact() {
     showDialog(

@@ -8,6 +8,7 @@ import '../config/constants.dart';
 /// Uses platform TLS stack for browser-like fingerprint
 class WssClient {
   final String _url;
+  final X509Certificate? _trustedCertificate;
   IOWebSocketChannel? _channel;
   StreamSubscription? _subscription;
 
@@ -19,11 +20,13 @@ class WssClient {
 
   WssClient({
     required String url,
+    X509Certificate? trustedCertificate,
     Function(Uint8List data)? onMessage,
     Function()? onConnected,
     Function(dynamic error)? onError,
     Function()? onClosed,
   })  : _url = url,
+        _trustedCertificate = trustedCertificate,
         _onMessage = onMessage,
         _onConnected = onConnected,
         _onError = onError,
@@ -33,13 +36,24 @@ class WssClient {
   Future<bool> connect() async {
     try {
       // Use platform TLS with default settings (browser-like fingerprint)
+      final uri = Uri.parse(_url);
+      
+      SecurityContext? securityContext;
+      if (_trustedCertificate != null) {
+        // Add trusted certificate for self-signed cert validation
+        securityContext = SecurityContext.defaultContext;
+        // TODO: Add certificate to security context for pinning
+      }
+
       final channel = await IOWebSocketChannel.connect(
         _url,
+        context: securityContext,
         // Custom headers to look like browser
         headers: {
           'User-Agent':
-              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Origin': 'https://${Uri.parse(_url).host}',
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Origin': 'https://${uri.host}',
+          'Host': uri.host,
         },
       );
 

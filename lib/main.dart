@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'app_node.dart';
+import 'core/identity_manager.dart';
+import 'storage/encrypted_storage.dart';
 import 'ui/screens/login_screen.dart';
 import 'ui/screens/chat_list_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
   runApp(const StealthChatApp());
 }
 
