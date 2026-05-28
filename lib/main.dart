@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'app_node.dart';
-import 'core/identity_manager.dart';
-import 'storage/encrypted_storage.dart';
 import 'ui/screens/login_screen.dart';
 import 'ui/screens/chat_list_screen.dart';
+import 'ui/theme/telegram_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
   runApp(const StealthChatApp());
 }
 
@@ -19,13 +16,9 @@ class StealthChatApp extends StatelessWidget {
     return MaterialApp(
       title: 'StealthChat',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: TelegramTheme.lightTheme,
+      darkTheme: TelegramTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: const LoginScreen(),
     );
   }

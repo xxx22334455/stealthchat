@@ -2,9 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../../core/identity_manager.dart';
-import '../../core/crypto_session.dart';
-import '../../core/message_padding.dart';
-import '../../config/constants.dart';
+import '../theme/telegram_theme.dart';
 
 class ChatScreen extends StatefulWidget {
   final IdentityManager identityManager;
@@ -25,17 +23,12 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _messageController = TextEditingController();
   final _messages = <ChatMessage>[];
-  CryptoSession? _session;
-
-  @override
-  void initState() {
-    super.initState();
-    // TODO: Initialize or load crypto session
-  }
+  final _scrollController = ScrollController();
 
   @override
   void dispose() {
     _messageController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -53,25 +46,56 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     _messageController.clear();
+    _scrollToBottom();
 
     // TODO: Encrypt and send
-    _markAsSent();
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _markAsSent();
+    });
   }
 
   void _markAsSent() {
     setState(() {
       if (_messages.isNotEmpty) {
-        _messages.last = _messages.last.copyWith(status: MessageStatus.sent);
+        _messages.last = _messages.last.copyWith(status: MessageStatus.read);
+      }
+    });
+  }
+
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.peerName),
+        title: Text(
+          widget.peerName,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.call),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.videocam),
+            onPressed: () {},
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: () => _showPeerInfo(),
@@ -81,12 +105,46 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                return MessageBubble(message: _messages[index]);
-              },
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: isDark
+                      ? [const Color(0xFF0F0F0F), const Color(0xFF1A1A1A)]
+                      : [const Color(0xFFF0F2F5), const Color(0xFFE5E7EB)],
+                ),
+              ),
+              child: _messages.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 64,
+                            color: TelegramColors.lightTextSecondary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No messages yet',
+                            style: TextStyle(
+                              color: TelegramColors.lightTextSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.all(8),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        return TelegramMessageBubble(
+                          message: _messages[index],
+                        );
+                      },
+                    ),
             ),
           ),
           _buildInputField(),
@@ -96,41 +154,53 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildInputField() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, -2),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      color: isDark ? const Color(0xFF212121) : Colors.white,
       child: Row(
         children: [
+          IconButton(
+            icon: Icon(Icons.attach_file),
+            onPressed: () {},
+          ),
           Expanded(
-            child: TextField(
-              controller: _messageController,
-              decoration: InputDecoration(
-                hintText: 'Type a message...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF383838) : const Color(0xFFF0F2F5),
+                borderRadius: BorderRadius.circular(24),
               ),
-              onSubmitted: (_) => _sendMessage(),
+              child: TextField(
+                controller: _messageController,
+                decoration: InputDecoration(
+                  hintText: 'Message',
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                onSubmitted: (_) => _sendMessage(),
+              ),
             ),
           ),
           const SizedBox(width: 8),
           IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: _sendMessage,
-            color: Theme.of(context).primaryColor,
+            icon: Icon(Icons.emoji_emotions),
+            onPressed: () {},
+          ),
+          const SizedBox(width: 4),
+          CircleAvatar(
+            radius: 24,
+            backgroundColor: TelegramColors.lightPrimary,
+            child: IconButton(
+              icon: Icon(
+                _messageController.text.isEmpty ? Icons.mic : Icons.send,
+                color: Colors.white,
+              ),
+              onPressed: _sendMessage,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
           ),
         ],
       ),
@@ -198,43 +268,64 @@ class ChatMessage {
 
 enum MessageStatus { sending, sent, delivered, read }
 
-class MessageBubble extends StatelessWidget {
+class TelegramMessageBubble extends StatelessWidget {
   final ChatMessage message;
 
-  const MessageBubble({super.key, required this.message});
+  const TelegramMessageBubble({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
     final isMine = message.isMine;
-
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Align(
       alignment: isMine ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isMine
-              ? Theme.of(context).primaryColor
-              : Theme.of(context).colorScheme.surfaceVariant,
-          borderRadius: BorderRadius.circular(16),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
         ),
+        margin: const EdgeInsets.only(bottom: 4),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            Text(message.text),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _formatTime(message.timestamp),
-                  style: Theme.of(context).textTheme.caption,
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
+              decoration: BoxDecoration(
+                color: isMine
+                    ? (isDark ? TelegramColors.darkMessageOut : TelegramColors.lightMessageOut)
+                    : (isDark ? TelegramColors.darkMessageIn : TelegramColors.lightMessageIn),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                message.text,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                 ),
-                if (isMine) ...[
-                  const SizedBox(width: 4),
-                  _buildStatusIcon(),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 2, right: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _formatTime(message.timestamp),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: TelegramColors.lightTextSecondary,
+                    ),
+                  ),
+                  if (isMine) ...[
+                    const SizedBox(width: 2),
+                    _buildStatusIcon(isDark),
+                  ],
                 ],
-              ],
+              ),
             ),
           ],
         ),
@@ -242,7 +333,11 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusIcon() {
+  Widget _buildStatusIcon(bool isDark) {
+    final checkColor = message.status == MessageStatus.read
+        ? TelegramColors.lightPrimary
+        : TelegramColors.lightTextSecondary;
+    
     switch (message.status) {
       case MessageStatus.sending:
         return const SizedBox(
@@ -251,11 +346,11 @@ class MessageBubble extends StatelessWidget {
           child: CircularProgressIndicator(strokeWidth: 2),
         );
       case MessageStatus.sent:
-        return Icon(Icons.check, size: 16);
+        return Icon(Icons.check, size: 16, color: checkColor);
       case MessageStatus.delivered:
-        return Icon(Icons.check_double, size: 16);
+        return Icon(Icons.check_double, size: 16, color: checkColor);
       case MessageStatus.read:
-        return Icon(Icons.check_double, size: 16, color: Colors.blue);
+        return Icon(Icons.check_double, size: 16, color: TelegramColors.lightPrimary);
     }
   }
 
