@@ -9,26 +9,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-      
-      - name: Set up Java
-        uses: actions/setup-java@v4
+          channel: stable
+      - uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-      
-      - name: Get dependencies
-        run: flutter pub get
-      
-    - name: Build APK
-        run: flutter build apk --release
-       
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
         with:
           name: stealthchat-android-v${{ github.run_number }}
           path: build/app/outputs/flutter-apk/app-release.apk
@@ -37,20 +27,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-      
-     - name: Get dependencies
-        run: flutter pub get
-       
-      - name: Build Windows
-        run: flutter build windows --release
-       
-      - name: Upload Windows
-        uses: actions/upload-artifact@v4
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build windows --release
+      - uses: actions/upload-artifact@v4
         with:
           name: stealthchat-windows-v${{ github.run_number }}
           path: build/windows/x64/runner/Release/
