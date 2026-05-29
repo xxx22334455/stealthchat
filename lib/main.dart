@@ -1,30 +1,24 @@
 import 'package:flutter/material.dart';
+import 'ui/screens/login_screen.dart';
+import 'ui/theme/telegram_theme.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const StealthChatApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class StealthChatApp extends StatelessWidget {
+  const StealthChatApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'StealthChat',
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(title: const Text('StealthChat')),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.check_circle, size: 64, color: Colors.green),
-              SizedBox(height: 16),
-              Text('App works!', style: TextStyle(fontSize: 20)),
-            ],
-          ),
-        ),
-      ),
+      theme: TelegramTheme.lightTheme,
+      darkTheme: TelegramTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      home: const LoginScreen(),
     );
   }
 }
