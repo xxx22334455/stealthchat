@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Manages cryptographic identity for a node
 /// Uses Ed25519 for signatures and X25519 for key exchange
@@ -14,12 +15,20 @@ class IdentityManager {
 
   final _uuid = const Uuid();
   bool _initialized = false;
+  SharedPreferences? _prefs;
 
   Future<void> initialize() async {
     if (_initialized) return;
     
-    // TODO: Load from encrypted storage
-    _generateNewKeys();
+    _prefs = await SharedPreferences.getInstance();
+    
+    final savedKeys = _loadKeys();
+    if (savedKeys != null) {
+      _restoreKeys(savedKeys);
+    } else {
+      _generateNewKeys();
+      _saveKeys();
+    }
     _initialized = true;
   }
 
@@ -88,6 +97,56 @@ class IdentityManager {
   }
 
   bool get isInitialized => _initialized;
+
+  Map<String, String> _loadKeys() {
+    try {
+      final privateKey = _prefs?.getString('private_key');
+      final publicKey = _prefs?.getString('public_key');
+      final x25519PrivateKey = _prefs?.getString('x25519_private_key');
+      final x25519PublicKey = _prefs?.getString('x25519_public_key');
+      final peerId = _prefs?.getString('peer_id');
+
+      if (privateKey != null && publicKey != null &&
+          x25519PrivateKey != null && x25519PublicKey != null &&
+          peerId != null) {
+        return {
+          'private_key': privateKey,
+          'public_key': publicKey,
+          'x25519_private_key': x25519PrivateKey,
+          'x25519_public_key': x25519PublicKey,
+          'peer_id': peerId,
+        };
+      }
+      return {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  void _restoreKeys(Map<String, String> keys) {
+    _privateKey = Uint8List.fromList(base64Decode(keys['private_key']!));
+    _publicKey = Uint8List.fromList(base64Decode(keys['public_key']!));
+    _x25519PrivateKey = Uint8List.fromList(base64Decode(keys['x25519_private_key']!));
+    _x25519PublicKey = Uint8List.fromList(base64Decode(keys['x25519_public_key']!));
+    _peerId = keys['peer_id']!;
+  }
+
+  void _saveKeys() {
+    _prefs?.setString('private_key', base64Encode(_privateKey));
+    _prefs?.setString('public_key', base64Encode(_publicKey));
+    _prefs?.setString('x25519_private_key', base64Encode(_x25519PrivateKey));
+    _prefs?.setString('x25519_public_key', base64Encode(_x25519PublicKey));
+    _prefs?.setString('peer_id', _peerId);
+  }
+
+  Future<void> logout() async {
+    await _prefs?.remove('private_key');
+    await _prefs?.remove('public_key');
+    await _prefs?.remove('x25519_private_key');
+    await _prefs?.remove('x25519_public_key');
+    await _prefs?.remove('peer_id');
+    _initialized = false;
+  }
 }
 
 extension Uint8ListExt on Uint8List {
