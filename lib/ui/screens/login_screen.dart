@@ -14,9 +14,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _identityManager = IdentityManager();
+  late final IdentityManager _identityManager;
   bool _isLoading = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _identityManager = IdentityManager();
+  }
 
   @override
   void dispose() {
@@ -36,21 +42,23 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await _identityManager.initialize();
       
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatListScreen(
-              identityManager: _identityManager,
-            ),
+      if (!mounted) return;
+      
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatListScreen(
+            identityManager: _identityManager,
           ),
-        );
-      }
-    } catch (e) {
+        ),
+      );
+    } catch (e, stackTrace) {
+      if (!mounted) return;
       setState(() {
-        _error = e.toString();
+        _error = 'Error: $e\n$stackTrace';
       });
     } finally {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
