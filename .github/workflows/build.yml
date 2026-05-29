@@ -24,19 +24,14 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
       
-      - name: Build APK
+    - name: Build APK
         run: flutter build apk --release
-      
-      - name: Rename APK with version
-        run: |
-          BUILD_NUMBER=${{ github.run_number }}
-          mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/stealthchat_android_v${BUILD_NUMBER}.apk
        
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: stealthchat-android-v${{ github.run_number }}
-          path: build/app/outputs/flutter-apk/stealthchat_android_v*.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
 
   build-windows:
     runs-on: windows-latest
@@ -54,15 +49,8 @@ jobs:
       - name: Build Windows
         run: flutter build windows --release
        
-      - name: Rename Windows build with version
-        run: |
-          $BUILD_NUMBER = "${{ github.run_number }}"
-          $OLD_PATH = "build\windows\x64\runner\Release"
-          $NEW_PATH = "build\windows\x64\runner\Release_v$BUILD_NUMBER"
-          Move-Item $OLD_PATH $NEW_PATH
-       
       - name: Upload Windows
         uses: actions/upload-artifact@v4
         with:
           name: stealthchat-windows-v${{ github.run_number }}
-          path: build/windows/x64/runner/Release_v*/
+          path: build/windows/x64/runner/Release/
