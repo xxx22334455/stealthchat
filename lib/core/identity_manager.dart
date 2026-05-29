@@ -124,11 +124,17 @@ class IdentityManager {
   }
 
   void _restoreKeys(Map<String, String> keys) {
-    _privateKey = Uint8List.fromList(base64Decode(keys['private_key']!));
-    _publicKey = Uint8List.fromList(base64Decode(keys['public_key']!));
-    _x25519PrivateKey = Uint8List.fromList(base64Decode(keys['x25519_private_key']!));
-    _x25519PublicKey = Uint8List.fromList(base64Decode(keys['x25519_public_key']!));
-    _peerId = keys['peer_id']!;
+    final privateKeyB64 = keys['private_key'];
+    final publicKeyB64 = keys['public_key'];
+    final x25519PrivateKeyB64 = keys['x25519_private_key'];
+    final x25519PublicKeyB64 = keys['x25519_public_key'];
+    final peerId = keys['peer_id'];
+
+    if (privateKeyB64 != null) _privateKey = Uint8List.fromList(base64Decode(privateKeyB64));
+    if (publicKeyB64 != null) _publicKey = Uint8List.fromList(base64Decode(publicKeyB64));
+    if (x25519PrivateKeyB64 != null) _x25519PrivateKey = Uint8List.fromList(base64Decode(x25519PrivateKeyB64));
+    if (x25519PublicKeyB64 != null) _x25519PublicKey = Uint8List.fromList(base64Decode(x25519PublicKeyB64));
+    if (peerId != null) _peerId = peerId;
   }
 
   void _saveKeys() {
